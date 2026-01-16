@@ -1,67 +1,95 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import Todo from "./components/Todo";
+import { useState } from 'react';
+import { nanoid } from 'nanoid';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+import Todo from "./components/Todo";
+import FilterRadio from './components/FilterRadio';
+import Search from './components/Search';
+import AddTaskDialog from './components/AddTaskDialog';
+
+function App(props) {
+  const [count, setCount] = useState("Todo App");
+  const [tasks, setTasks] = useState(props.tasks);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const openDialog = () => setIsOpen(true);
+  const closeDialog = () => setIsOpen(false);
+
+  const todoList = tasks?.map((task) => (
+    <Todo 
+      id={task.id} 
+      name={task.name} 
+      description={task.description} 
+      isCompleted={task.isCompleted}
+      isSelected={task.isSelected}
+      key={task.id}
+    />
+  ));
+  
+  function handleDelete(event) {
+      alert("Delete Button Clicked.");
+      // TODO: Remove alert() once functionality implemented.
+  }
+
+  function handleSetStatus(event) {
+      alert("Set Status Button Clicked.");
+      // TODO: Remove alert() once functionality implemented.
+  };
+
+  function addTask(name, description) {
+    const newTask = {id: nanoid(3), name, description, isCompleted: false, isSelected: false};
+    setTasks([...tasks, newTask]);
+  };
 
   return (
     <>
       <div className="todoapp title-div">
         <h1> YET ANOTHER TO-DO APP</h1>
       </div>
-      <div className="todoapp user-inputs">
-        <label htmlFor="search-input"> 
-          Search by Name: 
-        </label>
-        <input
-          className='todoapp user-inputs'
-          type="text"
-          id="search-input"
-          name="search-input"
-          autoComplete='off'
-        />
+      <div className="todoapp">
 
         <div>
-        <label htmlFor="filter-input">
-          Filter by: 
-        </label>
-        <label htmlFor="filter-input">
-          <input type="radio" id="filter-choice-all" name="filterChoice" value="byAll" />
-          <span> All </span>
-        </label>
-                <label htmlFor="filter-input">
-          <input type="radio" id="filter-choice-all" name="filterChoice" value="byActive" />
-          <span> Active </span>
-        </label>
-                <label htmlFor="filter-input">
-          <input type="radio" id="filter-choice-all" name="filterChoice" value="byCompleted" />
-          <span> Completed </span>
-        </label>
+          <Search/>
+        </div>
+
+
+        <div>
+          <FilterRadio/>
         </div>
 
         <div className="todo-list-container">
           <table>
+
             <thead>
               <tr>
-                <th> Index </th>
+                <th> Task ID </th>
                 <th> Task Name </th>
                 <th> Description </th>
                 <th> Status </th>
+                <th> Selected </th>
               </tr>
             </thead>
+
             <tbody>
-              <Todo name="Placeholder" id="0"/>
+              {todoList}
             </tbody>
+
           </table>
         </div>
 
         <div className="user-input-buttons">
-          <button name='deleteTaskBtn' type='button'> Delete Task(s) </button>
-          <button name="setStatusBtn" type='button'> Set Status </button>
-          <button name="addTaskBtn" type='button'> Add Task </button>
+            <button name='deleteTaskBtn' type='button' onClick={handleDelete}> Delete Task(s) </button>
+            <button name="setStatusBtn" type='button' onClick={handleSetStatus}> Set Status </button>
+            
+            <button name="addTaskBtn" type='button' onClick={openDialog}> 
+              Add Task  
+            </button>
+
+            <AddTaskDialog 
+              isOpen={isOpen} 
+              onClose={closeDialog} 
+              addTaskHandler={addTask}
+            />
         </div>
 
       </div>
