@@ -5,15 +5,17 @@ import './App.css';
 import Todo from "./components/Todo";
 import FilterRadio from './components/FilterRadio';
 import Search from './components/Search';
-import AddTaskDialog from './components/AddTaskDialog';
+import TaskDialog from './components/TaskDialog';
+import DeleteButton from './components/DeleteButton';
 
 function App(props) {
-  const [count, setCount] = useState("Todo App");
+  const [count, setCount] = useState(0);
   const [tasks, setTasks] = useState(props.tasks);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
+  const [selectedTasks, setSelectedTasks] = useState([]);
 
-  const openDialog = () => setIsOpen(true);
-  const closeDialog = () => setIsOpen(false);
+  const openTaskDialog = () => setIsTaskDialogOpen(true);
+  const closeTaskDialog = () => setIsTaskDialogOpen(false);
 
   const todoList = tasks?.map((task) => (
     <Todo 
@@ -23,17 +25,19 @@ function App(props) {
       isCompleted={task.isCompleted}
       isSelected={task.isSelected}
       key={task.id}
+      handleToggleSelect={handleToggleSelect}
+      handleToggleStatus={handleToggleStatus}
     />
   ));
-  
-  function handleDelete(event) {
-      alert("Delete Button Clicked.");
-      // TODO: Remove alert() once functionality implemented.
-  }
 
-  function handleSetStatus(event) {
-      alert("Set Status Button Clicked.");
-      // TODO: Remove alert() once functionality implemented.
+  function handleToggleStatus(id) {
+    const updatedTasks = tasks.map((task) => {
+      if (id === task.id) {
+        return {...task, isCompleted: !task.isCompleted};
+      }
+      return task;
+    });
+    setTasks(updatedTasks);
   };
 
   function addTask(name, description) {
@@ -41,17 +45,27 @@ function App(props) {
     setTasks([...tasks, newTask]);
   };
 
+  function handleToggleSelect(event) {
+      const value = event.target.value;
+
+      if (event.target.checked) {
+          setSelectedTasks([...selectedTasks, value]);
+      } else {
+          setSelectedTasks(selectedTasks.filter((item) => item !== value));
+      }
+      console.log(selectedTasks)
+  }
+
   return (
     <>
       <div className="todoapp title-div">
-        <h1> YET ANOTHER TO-DO APP</h1>
+        <h1> Todo Lister </h1>
       </div>
       <div className="todoapp">
 
         <div>
           <Search/>
         </div>
-
 
         <div>
           <FilterRadio/>
@@ -78,16 +92,22 @@ function App(props) {
         </div>
 
         <div className="user-input-buttons">
-            <button name='deleteTaskBtn' type='button' onClick={handleDelete}> Delete Task(s) </button>
-            <button name="setStatusBtn" type='button' onClick={handleSetStatus}> Set Status </button>
-            
-            <button name="addTaskBtn" type='button' onClick={openDialog}> 
+            <DeleteButton 
+              tasks={tasks}
+              setTasks={setTasks}
+              selectedTasks={selectedTasks}
+              setSelectedTasks={setSelectedTasks}
+            />
+            <button name="editTaskBtn" type="button">
+              Edit Task
+            </button>
+            <button name="addTaskBtn" type='button' onClick={openTaskDialog}> 
               Add Task  
             </button>
 
-            <AddTaskDialog 
-              isOpen={isOpen} 
-              onClose={closeDialog} 
+            <TaskDialog 
+              isOpen={isTaskDialogOpen} 
+              onClose={closeTaskDialog} 
               addTaskHandler={addTask}
             />
         </div>

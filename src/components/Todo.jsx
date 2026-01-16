@@ -1,31 +1,27 @@
 import React, {useState} from 'react';
 
-function Todo(taskEntry) {
-    const [selectedTasks, setSelectedTasks] = useState([]);
-    function handleCheckboxChange(event) {
-        const value = event.target.value;
-
-        if (selectedTasks.includes(value)) {
-            setSelectedTasks(selectedTasks.filter((item) => item !== value));
-        } else {
-            setSelectedTasks([...selectedTasks, value]);
-        }
-        console.log(selectedTasks);
-    }
-
+function Todo(props) {
     return (
         <tr>
-            <td> {taskEntry.id} </td>
-            <td> {taskEntry.name} </td>
-            <td> {taskEntry.description}</td>
-            <td> {taskEntry.isCompleted ? 'Completed' : 'Active'} </td>
+            <td> {props.id} </td>
+            <td> {props.name} </td>
+            <td> {props.description}</td>
+            <td> 
+                <input
+                    id={props.id}
+                    type='checkbox'
+                    defaultChecked={props.isCompleted}
+                    onChange= {() => props.handleToggleStatus(props.id)}
+                />
+                {props.isCompleted ? 'Completed' : 'Incomplete'} 
+            </td>
             <td> 
                 <input
                     type="checkbox"
                     name="selectCheckbox"
-                    value={taskEntry.id}
-                    checked={taskEntry.isChecked}
-                    onChange={handleCheckboxChange}
+                    value={props.id}
+                    checked={props.isChecked}
+                    onChange={props.handleToggleSelect}
                 /> 
             </td>
         </tr>
