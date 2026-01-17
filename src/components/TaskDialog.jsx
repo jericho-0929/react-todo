@@ -1,11 +1,9 @@
 import {useEffect, useState, useRef} from "react";
 
-function AddTaskDialog({ isOpen, onClose, addTaskHandler, editTaskHandler }) {
+function TaskDialog({ isOpen, onClose, isEdit, addTaskHandler, editTaskHandler }) {
     const ref = useRef();
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
-
-    console.log(name.length)
 
     useEffect(() => {
         if (isOpen) {
@@ -25,14 +23,19 @@ function AddTaskDialog({ isOpen, onClose, addTaskHandler, editTaskHandler }) {
         setDescription(event.target.value);
     }
 
-    function handleAddTask(event) {
+    function handleSubmit(event) {
         event.preventDefault();
         if (name.length <= 0) {
             alert("Enter a task name!");
             return null;
         }
         
-        addTaskHandler(name, description);
+        if (isEdit) {
+            editTaskHandler(name, description);
+        } else {
+            addTaskHandler(name, description);
+        }
+
         setName("");
         setDescription("");
         onClose();
@@ -44,8 +47,8 @@ function AddTaskDialog({ isOpen, onClose, addTaskHandler, editTaskHandler }) {
             onCancel={onClose}
             id="TaskDialog"
         >
-            <form onSubmit={handleAddTask}>
-                <span> Add Task: </span>
+            <form onSubmit={handleSubmit}>
+                <span> {isEdit ? 'Edit Task' : 'Add Task'} </span>
                 <br/>
                 <label htmlFor="task-name-entry"> Task Name: </label>
                 <input 
@@ -75,4 +78,4 @@ function AddTaskDialog({ isOpen, onClose, addTaskHandler, editTaskHandler }) {
     );
 }
 
-export default AddTaskDialog;
+export default TaskDialog;

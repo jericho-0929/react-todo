@@ -1,23 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import './App.css';
 
 import Todo from "./components/Todo";
 import FilterRadio from './components/FilterRadio';
-import Search from './components/Search';
 import TaskDialog from './components/TaskDialog';
 import DeleteButton from './components/DeleteButton';
+import SearchBar from './components/Search';
 
 function App(props) {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(0); // TODO: Separate into activeCount & completedCount
   const [tasks, setTasks] = useState(props.tasks);
-  const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState([]);
 
-  const openTaskDialog = () => setIsTaskDialogOpen(true);
-  const closeTaskDialog = () => setIsTaskDialogOpen(false);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [nameSearchFilter, setNameSearchFilter] = useState("Placeholder");
 
-  const todoList = tasks?.map((task) => (
+  const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
+  const [isEditDialog, setIsEditDialog] = useState(false);
+
+  const openTaskDialog = () => setIsTaskDialogOpen(true);
+  const closeTaskDialog = () => {
+    setIsTaskDialogOpen(false);
+    setIsEditDialog(false);
+  };
+
+  const filteredTasksByStatus = tasks.filter((task) => {
+    if (statusFilter === "all") {
+      return true;
+    }
+    if (statusFilter === 'true') {
+      return task.isCompleted;
+    }
+    return !task.isCompleted;
+  });
+
+  const filteredTasksByName = filteredTasksByStatus.filter((task) => 
+    task.name.toLowerCase().includes(nameSearchFilter.toLowerCase().trim())
+  );
+
+  const todoList = filteredTasksByName?.map((task) => (
     <Todo 
       id={task.id} 
       name={task.name} 
@@ -45,6 +67,28 @@ function App(props) {
     setTasks([...tasks, newTask]);
   };
 
+  function editTask(name, description) {
+    const id = selectedTasks[0];
+
+    setTasks(prevTasks => prevTasks.map(task => {
+        if (task.id === id) {
+          return {...task, name, description};
+        }
+        return task;
+      })
+    );
+  }
+
+  function handleEditSelect(event) {
+    event.preventDefault();
+    if (selectedTasks.length != 1 ) {
+      alert("Please select only one task!");
+      return null;
+    }
+    setIsEditDialog(true);
+    openTaskDialog();
+  }
+
   function handleToggleSelect(event) {
       const value = event.target.value;
 
@@ -64,15 +108,21 @@ function App(props) {
       <div className="todoapp">
 
         <div>
-          <Search/>
+          <SearchBar
+            nameSearchFilter={nameSearchFilter}
+            setNameSearchFilter={setNameSearchFilter}
+          />
         </div>
 
         <div>
-          <FilterRadio/>
+          <FilterRadio
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+          />
         </div>
 
         <div className="todo-list-container">
-          <table>
+{          <table>
 
             <thead>
               <tr>
@@ -88,7 +138,7 @@ function App(props) {
               {todoList}
             </tbody>
 
-          </table>
+          </table>}
         </div>
 
         <div className="user-input-buttons">
@@ -98,7 +148,7 @@ function App(props) {
               selectedTasks={selectedTasks}
               setSelectedTasks={setSelectedTasks}
             />
-            <button name="editTaskBtn" type="button">
+            <button name="editTaskBtn" type="button" onClick={handleEditSelect}>
               Edit Task
             </button>
             <button name="addTaskBtn" type='button' onClick={openTaskDialog}> 
@@ -106,9 +156,11 @@ function App(props) {
             </button>
 
             <TaskDialog 
-              isOpen={isTaskDialogOpen} 
-              onClose={closeTaskDialog} 
+              isOpen={isTaskDialogOpen}
+              onClose={closeTaskDialog}
+              isEdit={isEditDialog}
               addTaskHandler={addTask}
+              editTaskHandler={editTask}
             />
         </div>
 

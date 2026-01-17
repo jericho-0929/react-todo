@@ -13,7 +13,7 @@ function Todo(props) {
                     defaultChecked={props.isCompleted}
                     onChange= {() => props.handleToggleStatus(props.id)}
                 />
-                {props.isCompleted ? 'Completed' : 'Incomplete'} 
+                {props.isCompleted ? 'Completed' : 'Active'} 
             </td>
             <td> 
                 <input
