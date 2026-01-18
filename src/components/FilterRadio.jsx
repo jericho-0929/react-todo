@@ -1,20 +1,6 @@
-function FilterRadio({statusFilter, setStatusFilter, originalTasks, setTasksByStatus}) {
+function FilterRadio({statusFilter, setStatusFilter, originalTasks}) {
   function handleRadioChange(event) {
-    setTasksByStatus(originalTasks.filter(
-      (task) => {
-        if (event.target.value === "all") {
-          setStatusFilter("all");
-          return true;
-        }
-        if (event.target.value === "true") {
-          console.log(event.target.value);
-          setStatusFilter("true");
-          return task.isCompleted;
-        }
-        setStatusFilter("false");
-        return !task.isCompleted;
-      }
-    ));
+    setStatusFilter(event.target.value);
   }
 
   const allCount = originalTasks.length;

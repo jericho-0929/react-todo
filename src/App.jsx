@@ -13,12 +13,12 @@ function App(props) {
     const localData = localStorage.getItem('tasks');
     return localData ? JSON.parse(localData) : props.tasks
   });
+
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks))
   }, [tasks])
 
   const [selectedTasks, setSelectedTasks] = useState([]);
-  const [tasksByStatus, setTasksByStatus] = useState(tasks);
   const [statusFilter, setStatusFilter] = useState("all");
   const [nameSearchFilter, setNameSearchFilter] = useState("");
 
@@ -30,6 +30,16 @@ function App(props) {
     setIsTaskDialogOpen(false);
     setIsEditDialog(false);
   };
+
+  const tasksByStatus = tasks.filter((task) => {
+    if (statusFilter === "all") {
+      return true;
+    }
+    if (statusFilter === "true") {
+      return task.isCompleted;
+    }
+    return !task.isCompleted;
+  })
 
   const tasksByName = tasksByStatus.filter((task) => 
     task.name.toLowerCase().includes(nameSearchFilter.toLowerCase().trim())
@@ -115,7 +125,6 @@ function App(props) {
             statusFilter = {statusFilter}
             setStatusFilter = {setStatusFilter}
             originalTasks= {tasks}
-            setTasksByStatus = {setTasksByStatus}
           />
         </div>
 
