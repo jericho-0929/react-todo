@@ -1,12 +1,27 @@
-function FilterRadio({statusFilter, setStatusFilter}) {
+function FilterRadio({statusFilter, setStatusFilter, originalTasks, setTasksByStatus}) {
   function handleRadioChange(event) {
-    if (event.target.value === "all") {
-      setStatusFilter("all")
-      return null;
-    }
-
-    setStatusFilter(event.target.value);
+    setTasksByStatus(originalTasks.filter(
+      (task) => {
+        if (event.target.value === "all") {
+          setStatusFilter("all");
+          return true;
+        }
+        if (event.target.value === "true") {
+          console.log(event.target.value);
+          setStatusFilter("true");
+          return task.isCompleted;
+        }
+        setStatusFilter("false");
+        return !task.isCompleted;
+      }
+    ));
   }
+
+  const allCount = originalTasks.length;
+  const activeCount = originalTasks.reduce ((count, tasks) => {
+    return count + (!tasks.isCompleted ? 1 : 0)
+  }, 0);
+  const completedCount = allCount - activeCount;
 
   return (
       <form>
@@ -22,7 +37,7 @@ function FilterRadio({statusFilter, setStatusFilter}) {
             checked={statusFilter === "all"}
             onChange={handleRadioChange}
           />
-          <span> All </span>
+          <span> All ({allCount}) </span>
         </label>
         <label htmlFor="filter-input">
           <input 
@@ -33,7 +48,7 @@ function FilterRadio({statusFilter, setStatusFilter}) {
             checked={statusFilter === "false"}
             onChange={handleRadioChange}
           />
-          <span> Active </span>
+          <span> Active ({activeCount}) </span>
         </label>
           <label htmlFor="filter-input">
           <input 
@@ -44,7 +59,7 @@ function FilterRadio({statusFilter, setStatusFilter}) {
             checked={statusFilter === "true"}
             onChange={handleRadioChange}
           />
-          <span> Completed </span>
+          <span> Completed ({completedCount})</span>
         </label>
       </form>
   );

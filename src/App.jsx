@@ -9,12 +9,18 @@ import DeleteButton from './components/DeleteButton';
 import SearchBar from './components/Search';
 
 function App(props) {
-  const [count, setCount] = useState(0); // TODO: Separate into activeCount & completedCount
-  const [tasks, setTasks] = useState(props.tasks);
-  const [selectedTasks, setSelectedTasks] = useState([]);
+  const [tasks, setTasks] = useState(() => {
+    const localData = localStorage.getItem('tasks');
+    return localData ? JSON.parse(localData) : props.tasks
+  });
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks))
+  }, [tasks])
 
+  const [selectedTasks, setSelectedTasks] = useState([]);
+  const [tasksByStatus, setTasksByStatus] = useState(tasks);
   const [statusFilter, setStatusFilter] = useState("all");
-  const [nameSearchFilter, setNameSearchFilter] = useState("Placeholder");
+  const [nameSearchFilter, setNameSearchFilter] = useState("");
 
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [isEditDialog, setIsEditDialog] = useState(false);
@@ -25,21 +31,11 @@ function App(props) {
     setIsEditDialog(false);
   };
 
-  const filteredTasksByStatus = tasks.filter((task) => {
-    if (statusFilter === "all") {
-      return true;
-    }
-    if (statusFilter === 'true') {
-      return task.isCompleted;
-    }
-    return !task.isCompleted;
-  });
-
-  const filteredTasksByName = filteredTasksByStatus.filter((task) => 
+  const tasksByName = tasksByStatus.filter((task) => 
     task.name.toLowerCase().includes(nameSearchFilter.toLowerCase().trim())
   );
 
-  const todoList = filteredTasksByName?.map((task) => (
+  const todoList = tasksByName?.map((task) => (
     <Todo 
       id={task.id} 
       name={task.name} 
@@ -116,14 +112,15 @@ function App(props) {
 
         <div>
           <FilterRadio
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
+            statusFilter = {statusFilter}
+            setStatusFilter = {setStatusFilter}
+            originalTasks= {tasks}
+            setTasksByStatus = {setTasksByStatus}
           />
         </div>
 
         <div className="todo-list-container">
-{          <table>
-
+        <table>
             <thead>
               <tr>
                 <th> Task ID </th>
@@ -137,8 +134,7 @@ function App(props) {
             <tbody>
               {todoList}
             </tbody>
-
-          </table>}
+          </table>
         </div>
 
         <div className="user-input-buttons">
@@ -163,7 +159,6 @@ function App(props) {
               editTaskHandler={editTask}
             />
         </div>
-
       </div>
     </>
   )
