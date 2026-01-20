@@ -8,6 +8,7 @@ import TaskDialog from './components/TaskDialog';
 import DeleteButton from './components/DeleteButton';
 import SearchBar from './components/Search';
 import UndoDialog from './components/UndoDialog';
+import FilterRecency from './components/FilterRecency';
 
 function App(props) {
   const [tasks, setTasks] = useState(() => {
@@ -20,6 +21,7 @@ function App(props) {
 
   const [selectedTasks, setSelectedTasks] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("oldest");
   const [nameSearchFilter, setNameSearchFilter] = useState("");
 
   const [deletedTasks, setDeletedTasks] = useState();
@@ -67,7 +69,17 @@ function App(props) {
     task.name.toLowerCase().includes(nameSearchFilter.toLowerCase().trim())
   );
 
-  const todoList = tasksByName?.map((task) => (
+  const tasksBySort = [...tasksByName].sort((a, b) => {
+    if (sortOrder === "newest") {
+      return b.dateAdded - a.dateAdded;
+    } else {
+      return a.dateAdded - b.dateAdded;
+    }
+  });
+
+  console.log(tasksBySort);
+
+  const todoList = tasksBySort?.map((task) => (
     <Todo 
       id={task.id} 
       name={task.name} 
@@ -96,7 +108,7 @@ function App(props) {
       name, description, 
       isCompleted: false, 
       isSelected: false,
-      dateAdded: Date.now()
+      dateAdded: Date.now() // Used as our system-only key for sorting.
     };
     setTasks([...tasks, newTask]);
   };
@@ -106,7 +118,7 @@ function App(props) {
 
     setTasks(prevTasks => prevTasks.map(task => {
         if (task.id === id) {
-          return {...task, name, description};
+          return {...task, name, description}; // dateAdded key not to be changed.
         }
         return task;
       })
@@ -152,6 +164,13 @@ function App(props) {
             statusFilter = {statusFilter}
             setStatusFilter = {setStatusFilter}
             originalTasks= {tasks}
+          />
+        </div>
+
+        <div>
+          <FilterRecency
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
           />
         </div>
 
