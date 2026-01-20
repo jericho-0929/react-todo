@@ -7,13 +7,13 @@ import FilterRadio from './components/FilterRadio';
 import TaskDialog from './components/TaskDialog';
 import DeleteButton from './components/DeleteButton';
 import SearchBar from './components/Search';
+import UndoDialog from './components/UndoDialog';
 
 function App(props) {
   const [tasks, setTasks] = useState(() => {
     const localData = localStorage.getItem('tasks');
     return localData ? JSON.parse(localData) : props.tasks
   });
-
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks))
   }, [tasks])
@@ -22,7 +22,10 @@ function App(props) {
   const [statusFilter, setStatusFilter] = useState("all");
   const [nameSearchFilter, setNameSearchFilter] = useState("");
 
+  const [deletedTasks, setDeletedTasks] = useState();
+
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
+  const [isUndoDialogOpen, setIsUndoDialogOpen] = useState(false);
   const [isEditDialog, setIsEditDialog] = useState(false);
 
   const openTaskDialog = () => setIsTaskDialogOpen(true);
@@ -30,6 +33,25 @@ function App(props) {
     setIsTaskDialogOpen(false);
     setIsEditDialog(false);
   };
+
+  const openUndoDialog = () => setIsUndoDialogOpen(true);
+  const closeUndoDialog = () => {
+    setIsUndoDialogOpen(false);
+    // Ensures that recently deleted task holder is cleared regardless of UndoDialog's output.
+    setDeletedTasks([]);  
+  }
+  useEffect(() => {
+    let toastTimer;
+    if (isUndoDialogOpen) {
+        toastTimer = setTimeout(() => {
+          closeUndoDialog();
+      }, 3000);
+    }
+
+    return () => {
+      clearTimeout(toastTimer);
+    };  
+  }, [isUndoDialogOpen]);
 
   const tasksByStatus = tasks.filter((task) => {
     if (statusFilter === "all") {
@@ -69,7 +91,13 @@ function App(props) {
   };
 
   function addTask(name, description) {
-    const newTask = {id: nanoid(3), name, description, isCompleted: false, isSelected: false};
+    const newTask = {
+      id: nanoid(3), 
+      name, description, 
+      isCompleted: false, 
+      isSelected: false,
+      dateAdded: Date.now()
+    };
     setTasks([...tasks, newTask]);
   };
 
@@ -103,7 +131,6 @@ function App(props) {
       } else {
           setSelectedTasks(selectedTasks.filter((item) => item !== value));
       }
-      console.log(selectedTasks)
   }
 
   return (
@@ -150,8 +177,11 @@ function App(props) {
             <DeleteButton 
               tasks={tasks}
               setTasks={setTasks}
+              deletedTasks={deletedTasks}
+              setDeletedTasks={setDeletedTasks}
               selectedTasks={selectedTasks}
               setSelectedTasks={setSelectedTasks}
+              openUndoDialog={openUndoDialog}
             />
             <button name="editTaskBtn" type="button" onClick={handleEditSelect}>
               Edit Task
@@ -166,6 +196,15 @@ function App(props) {
               isEdit={isEditDialog}
               addTaskHandler={addTask}
               editTaskHandler={editTask}
+            />
+
+            <UndoDialog
+              isOpen={isUndoDialogOpen}
+              onClose={closeUndoDialog}
+              tasks={tasks}
+              setTasks={setTasks}
+              deletedTasks={deletedTasks}
+              setDeletedTasks={setDeletedTasks}
             />
         </div>
       </div>
