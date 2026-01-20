@@ -30,6 +30,7 @@ function TaskDialog({ isOpen, onClose, isEdit, addTaskHandler, editTaskHandler }
             return null;
         }
         
+        // Reason why TaskDialog is used for both addTask and editTask functions.
         if (isEdit) {
             editTaskHandler(name, description);
         } else {

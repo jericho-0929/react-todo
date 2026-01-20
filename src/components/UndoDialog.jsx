@@ -15,8 +15,7 @@ function UndoDialog(
     function handleUndo(event) {
         event.preventDefault();
 
-        // Removed because deletedTasks may include more that one tasks, 
-        // and all should be reverted if done.
+        // Commented code below is such because deletedTasks may include more that one tasks.
         // const deletedTaskObject = deletedTask[0]
 
         if (deletedTasks.length <= 0) {
@@ -25,17 +24,18 @@ function UndoDialog(
             return false;
         }
 
-        setTasks([...tasks, ...deletedTasks]);
+        setTasks([...tasks, ...deletedTasks]); // "Sort by Date" functionality conveniently re-sorts this.
         onClose();
     }
 
+    // TODO: Implement dynamic counting (or other helpful-to-user UI addition) of deleted entries.
     return (
         <dialog
             ref={ref}
             onCancel={onClose}
             id="undoDialog"
         >
-        <span> Tasks deleted! </span><br/>
+        <span> Task(s) deleted! </span><br/>
         <button name="Undo" type="button" onClick={handleUndo}> Undo </button>
         </dialog>
     )

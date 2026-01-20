@@ -2,7 +2,6 @@ function DeleteButton(props) {
     const numberOfSelected = props.selectedTasks.length;
 
     function handleDeleteTasks() {
-        // TODO: Replace with custom modal dialog that displays names of selected tasks.
         const isConfirmed = window.confirm("Are you sure you want to delete: " + numberOfSelected + " items?");
 
         if (isConfirmed) {

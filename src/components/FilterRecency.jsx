@@ -3,6 +3,8 @@ function FilterRecency({sortOrder, setSortOrder}) {
     setSortOrder(event.target.value);
   }
   
+  // Use sortOrder === string instead of isNewest for ease-of-readability.
+
   return (
     <form>
       <label>

@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import './App.css';
 
-import Todo from "./components/Todo";
 import FilterRadio from './components/FilterRadio';
 import TaskDialog from './components/TaskDialog';
 import DeleteButton from './components/DeleteButton';
 import SearchBar from './components/Search';
 import UndoDialog from './components/UndoDialog';
 import FilterRecency from './components/FilterRecency';
+import PaginatedItems from './components/PaginatedItems';
 
 function App(props) {
   const [tasks, setTasks] = useState(() => {
@@ -36,10 +36,11 @@ function App(props) {
     setIsEditDialog(false);
   };
 
+  // Feature addition: Limited-time for undo delete.
   const openUndoDialog = () => setIsUndoDialogOpen(true);
   const closeUndoDialog = () => {
     setIsUndoDialogOpen(false);
-    // Ensures that recently deleted task holder is cleared regardless of UndoDialog's output.
+    // Ensures that the state variable is emptied regardless of how UndoDialog is closed.
     setDeletedTasks([]);  
   }
   useEffect(() => {
@@ -49,7 +50,6 @@ function App(props) {
           closeUndoDialog();
       }, 3000);
     }
-
     return () => {
       clearTimeout(toastTimer);
     };  
@@ -69,6 +69,7 @@ function App(props) {
     task.name.toLowerCase().includes(nameSearchFilter.toLowerCase().trim())
   );
 
+  // Feature addition: Sort by Date
   const tasksBySort = [...tasksByName].sort((a, b) => {
     if (sortOrder === "newest") {
       return b.dateAdded - a.dateAdded;
@@ -77,38 +78,17 @@ function App(props) {
     }
   });
 
-  console.log(tasksBySort);
-
-  const todoList = tasksBySort?.map((task) => (
-    <Todo 
-      id={task.id} 
-      name={task.name} 
-      description={task.description} 
-      isCompleted={task.isCompleted}
-      isSelected={task.isSelected}
-      key={task.id}
-      handleToggleSelect={handleToggleSelect}
-      handleToggleStatus={handleToggleStatus}
-    />
-  ));
-
-  function handleToggleStatus(id) {
-    const updatedTasks = tasks.map((task) => {
-      if (id === task.id) {
-        return {...task, isCompleted: !task.isCompleted};
-      }
-      return task;
-    });
-    setTasks(updatedTasks);
-  };
+  // const todoList refactored to return parameter of Todo function.
 
   function addTask(name, description) {
+    // Generated nanoid output is still used as a way to track unique entries 
+    // for all manners of entry manipulation/selection.
     const newTask = {
-      id: nanoid(3), 
+      id: nanoid(3),
       name, description, 
       isCompleted: false, 
       isSelected: false,
-      dateAdded: Date.now() // Used as our system-only key for sorting.
+      dateAdded: Date.now() // Used for sorting.
     };
     setTasks([...tasks, newTask]);
   };
@@ -135,6 +115,8 @@ function App(props) {
     openTaskDialog();
   }
 
+
+  // TODO: Attempt to refactor these two functions to Todo.jsx.
   function handleToggleSelect(event) {
       const value = event.target.value;
 
@@ -144,6 +126,16 @@ function App(props) {
           setSelectedTasks(selectedTasks.filter((item) => item !== value));
       }
   }
+
+  function handleToggleStatus(event) {
+    const updatedTasks = tasks.map((task) => {
+      if (event.target.value === task.id) {
+        return {...task, isCompleted: !task.isCompleted};
+      }
+      return task;
+    });
+    setTasks(updatedTasks);
+  };
 
   return (
     <>
@@ -174,22 +166,14 @@ function App(props) {
           />
         </div>
 
-        <div className="todo-list-container">
-        <table>
-            <thead>
-              <tr>
-                <th> Task ID </th>
-                <th> Task Name </th>
-                <th> Description </th>
-                <th> Status </th>
-                <th> Selected </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {todoList}
-            </tbody>
-          </table>
+        <div id="container">
+              {/* <Todo /> replaced with <PaginatedItems /> for dynamic rendering of pages*/}
+              <PaginatedItems
+                itemsPerPage={5}
+                items={tasksBySort}
+                handleToggleSelect={handleToggleSelect}
+                handleToggleStatus={handleToggleStatus}
+              />
         </div>
 
         <div className="user-input-buttons">

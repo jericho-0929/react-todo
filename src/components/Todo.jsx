@@ -1,30 +1,33 @@
-import React, {useState} from 'react';
-
-function Todo(props) {
+function Todo({tasks, handleToggleSelect, handleToggleStatus}) {
     return (
-        <tr>
-            <td> {props.id} </td>
-            <td> {props.name} </td>
-            <td> {props.description}</td>
-            <td> 
-                <input
-                    id={props.id}
-                    type='checkbox'
-                    defaultChecked={props.isCompleted}
-                    onChange= {() => props.handleToggleStatus(props.id)}
-                />
-                {props.isCompleted ? 'Completed' : 'Active'} 
-            </td>
-            <td> 
-                <input
-                    type="checkbox"
-                    name="selectCheckbox"
-                    value={props.id}
-                    checked={props.isChecked}
-                    onChange={props.handleToggleSelect}
-                /> 
-            </td>
-        </tr>
+        <>
+        {
+        tasks.map((task) => (
+            <tr key={task.id}>
+                <td> {task.name} </td>
+                <td> {task.description}</td>
+                <td> 
+                    <input
+                        type='checkbox'
+                        defaultChecked={task.isCompleted}
+                        value={task.id}
+                        onChange= {handleToggleStatus}
+                    />
+                    {task.isCompleted ? 'Completed' : 'Active'} 
+                </td>
+                <td> 
+                    <input
+                        type="checkbox"
+                        name="selectCheckbox"
+                        value={task.id}
+                        checked={task.isChecked}
+                        onChange={handleToggleSelect}
+                    /> 
+                </td>
+                <td> {(new Date(task.dateAdded)).toISOString().split('T')[0]} </td>
+            </tr>
+        ))}
+        </>
     );
 }
 
