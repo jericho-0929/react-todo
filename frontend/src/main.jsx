@@ -1,0 +1,15 @@
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+const todoData = [
+  {id: "-1", name: "Placeholder", description: "This is a placeholder", isCompleted: false, isSelected: false, dateAdded: Date.now()},
+  {id: "-2", name: "Extra Task", description: "This is an extra placeholder", isCompleted: true, isSelected: false, dateAdded: Date.now()}
+];
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App tasks={todoData}/>
+  </StrictMode>,
+)
