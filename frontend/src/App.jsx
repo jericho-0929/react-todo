@@ -10,6 +10,8 @@ import UndoDialog from './components/UndoDialog';
 import FilterRecency from './components/FilterRecency';
 import PaginatedItems from './components/PaginatedItems';
 
+const API_BASE_URL = "http://localhost:4000";
+
 function App(props) {
   const [tasks, setTasks] = useState(() => {
     const localData = localStorage.getItem('tasks');
@@ -30,11 +32,20 @@ function App(props) {
   const [isUndoDialogOpen, setIsUndoDialogOpen] = useState(false);
   const [isEditDialog, setIsEditDialog] = useState(false);
 
+  const [nodeMessage, setNodeMessage] = useState(null);
+
   const openTaskDialog = () => setIsTaskDialogOpen(true);
   const closeTaskDialog = () => {
     setIsTaskDialogOpen(false);
     setIsEditDialog(false);
   };
+
+  useEffect(() => {
+    fetch(API_BASE_URL + '/api/hello')
+      .then((res) => res.json())
+      .then((data) => setNodeMessage(data.message))
+      .catch((err) => console.error(err));
+  }, []);
 
   // Feature addition: Limited-time for undo delete.
   const openUndoDialog = () => setIsUndoDialogOpen(true);
@@ -141,6 +152,7 @@ function App(props) {
     <>
       <div className="todoapp title-div">
         <h1> Todo Lister </h1>
+        <pre> Message from Node: {nodeMessage ? nodeMessage : "He's silent..."}</pre>
       </div>
       <div className="todoapp">
 
